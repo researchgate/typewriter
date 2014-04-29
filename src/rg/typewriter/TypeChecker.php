@@ -57,6 +57,16 @@ class TypeChecker {
      * @return bool
      */
     private function isOfType($type, $value) {
+        if (substr($type, -2) === '[]' && (is_array($value) || $value instanceof \Traversable)) {
+            $type = substr($type, 0, -2);
+            foreach ($value as $element) {
+                if (!$this->isOfType($type, $element)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         switch (strtolower($type)) {
             case 'array':
                 return is_array($value);
@@ -97,15 +107,17 @@ class TypeChecker {
         $found = preg_match('/@return\s+(\S+)/', $this->reflection->getDocComment(), $matches);
         $types = $found ? $this->explodeMultipleHints($matches[1]) : array();
 
-
         $resolver = new ClassResolver($this->reflection->getFileName());
 
         $this->returnTypes = array_map(function ($type) use ($resolver) {
             if (substr($type, -2) === '[]') {
-                return 'traversable';
+                $type = substr($type, 0, -2);
+                $className = $resolver->resolve($type);
+                return ($className ?: $type) . '[]';
             }
+
             $className = $resolver->resolve($type);
-            return $className ? : $type;
+            return $className ?: $type;
         }, $types);
 
         return $this->returnTypes;
@@ -118,9 +130,9 @@ class TypeChecker {
     private function explodeMultipleHints($hint) {
         if (strpos($hint, '|') !== false) {
             return explode('|', $hint);
-        } else {
-            return array($hint);
         }
+
+        return array($hint);
     }
 
     /**

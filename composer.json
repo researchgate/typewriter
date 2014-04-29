@@ -1,6 +1,6 @@
 {
     "name": "rg/typewriter",
-    "description": "",
+    "description": "Docblock-based runtime type checker.",
     "keywords": [],
     "license": "MIT",
     "authors": [

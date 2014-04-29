@@ -140,6 +140,15 @@ class TypeChecker {
      * @return \ReflectionFunctionAbstract
      */
     private function getReflectionReference(callable $callable) {
+        if (is_array($callable)) {
+            return new \ReflectionMethod($callable[0], $callable[1]);
+        }
+
+        if (is_string($callable) && strpos($callable, '::') !== false) {
+            $callable = explode('::', $callable);
+            return new \ReflectionMethod($callable[0], $callable[1]);
+        }
+
         return new \ReflectionFunction($callable);
     }
 }

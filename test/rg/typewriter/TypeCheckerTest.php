@@ -2,25 +2,21 @@
 namespace rg\typewriter;
 
 use rg\typewriter\stub\Person;
+use rg\typewriter\stub\PersonRepository;
 
 class TypeCheckerTest extends \PHPUnit_Framework_TestCase {
 
     public function testConstructorMethodBoundToObject() {
-        $this->markTestIncomplete();
-        // stub needed
-        $obj = null;
-        $checker = new TypeChecker([$obj, 'methodName']);
+        $obj = new PersonRepository();
+        $checker = new TypeChecker([$obj, 'find']);
     }
 
     public function testConstructorMethodBoundToClass() {
-        $this->markTestIncomplete();
-        $checker = new TypeChecker(['className', 'methodName']);
+        $checker = new TypeChecker([PersonRepository::class, 'find']);
     }
 
     public function testConstructorStaticMethodAsString() {
-        $this->markTestIncomplete();
-        // stub needed
-        $checker = new TypeChecker('SomeClass::methodName');
+        $checker = new TypeChecker(PersonRepository::class . '::create');
     }
 
     public function testConstructorClosure() {

@@ -97,15 +97,15 @@ class TypeChecker {
         $found = preg_match('/@return\s+(\S+)/', $this->reflection->getDocComment(), $matches);
         $types = $found ? $this->explodeMultipleHints($matches[1]) : array();
 
-//        $resolver = new ClassResolver();
 
-        $this->returnTypes = array_map(function ($type) {
+        $resolver = new ClassResolver($this->reflection->getFileName());
+
+        $this->returnTypes = array_map(function ($type) use ($resolver) {
             if (substr($type, -2) === '[]') {
                 return 'traversable';
             }
-//            $className = $resolver->resolve($type);
-//            return $className ? : $type;
-            return $type;
+            $className = $resolver->resolve($type);
+            return $className ? : $type;
         }, $types);
 
         return $this->returnTypes;

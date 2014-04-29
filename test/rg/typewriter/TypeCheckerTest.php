@@ -1,6 +1,8 @@
 <?php
 namespace rg\typewriter;
 
+use rg\typewriter\stub\Person;
+
 class TypeCheckerTest extends \PHPUnit_Framework_TestCase {
 
     public function testConstructorMethodBoundToObject() {
@@ -76,5 +78,19 @@ class TypeCheckerTest extends \PHPUnit_Framework_TestCase {
         $this->assertFalse($checker->isValueValidReturnType([1, 2, 'foo']));
         $this->assertTrue($checker->isValueValidReturnType(new \ArrayIterator([1, 2, 3])));
         $this->assertFalse($checker->isValueValidReturnType(new \ArrayIterator([1, 2, 'foo'])));
+
+        /**
+         * @return Person[]
+         */
+        $callback = function() {};
+        $checker = new TypeChecker($callback);
+        $this->assertTrue($checker->isValueValidReturnType([
+            new Person('Jane Doe'),
+            new Person('Maximilian Mustermann'),
+        ]));
+        $this->assertFalse($checker->isValueValidReturnType([
+            new Person('Jane Doe'),
+            null,
+        ]));
     }
 }

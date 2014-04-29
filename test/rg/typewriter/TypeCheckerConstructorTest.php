@@ -11,7 +11,7 @@ class TypeCheckerConstructorTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testConstructorMethodBoundToClass() {
-        $checker = new TypeChecker([PersonRepository::class, 'find']);
+        $checker = new TypeChecker([PersonRepository::class, 'create']);
     }
 
     public function testConstructorStaticMethodAsString() {

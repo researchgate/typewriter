@@ -43,4 +43,13 @@ class TypeCheckerTest extends \PHPUnit_Framework_TestCase {
         $checker = new TypeChecker($callback);
         $this->assertTrue($checker->isValueValidReturnType(true));
     }
+
+    public function testValidateReturnTypeIncorrect() {
+        /**
+         * @return bool
+         */
+        $callback = function() {};
+        $checker = new TypeChecker($callback);
+        $this->assertFalse($checker->isValueValidReturnType('foo'));
+    }
 }

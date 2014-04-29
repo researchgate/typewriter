@@ -128,11 +128,7 @@ class TypeChecker {
      * @return array
      */
     private function explodeMultipleHints($hint) {
-        if (strpos($hint, '|') !== false) {
-            return explode('|', $hint);
-        }
-
-        return array($hint);
+        return strpos($hint, '|') !== false ? explode('|', $hint) : [$hint];
     }
 
     /**

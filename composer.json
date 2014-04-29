@@ -1,0 +1,19 @@
+{
+    "name": "rg/typewriter",
+    "description": "",
+    "keywords": [],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Igor Wiedler",
+            "email": "igor@wiedler.ch"
+        },
+        {
+            "name": "Janosch Woschitz",
+            "email": "janosch.woschitz@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "~5.5"
+    }
+}

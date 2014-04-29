@@ -30,9 +30,7 @@ class TypeCheckerTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testConstructorNamedFunction() {
-        $this->markTestIncomplete();
-        // stub file needed
-        $checker = new TypeChecker('functionName');
+        $checker = new TypeChecker('rg\typewriter\stub\strlen');
     }
 
     public function testValidateReturnTypeBool() {

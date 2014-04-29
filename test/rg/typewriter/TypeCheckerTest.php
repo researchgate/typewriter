@@ -35,21 +35,36 @@ class TypeCheckerTest extends \PHPUnit_Framework_TestCase {
         $checker = new TypeChecker('functionName');
     }
 
-    public function testValidateReturnType() {
+    public function testValidateReturnTypeBool() {
         /**
          * @return bool
          */
         $callback = function() {};
         $checker = new TypeChecker($callback);
         $this->assertTrue($checker->isValueValidReturnType(true));
+        $this->assertFalse($checker->isValueValidReturnType('foo'));
     }
 
-    public function testValidateReturnTypeIncorrect() {
+    public function testValidateReturnTypeString() {
         /**
-         * @return bool
+         * @return string
          */
         $callback = function() {};
         $checker = new TypeChecker($callback);
+        $this->assertTrue($checker->isValueValidReturnType('foo'));
+        $this->assertFalse($checker->isValueValidReturnType(null));
+    }
+
+    public function testValidateCompositeReturnType() {
+        /**
+         * @return int|bool
+         */
+        $callback = function() {};
+        $checker = new TypeChecker($callback);
+        $this->assertTrue($checker->isValueValidReturnType(0));
+        $this->assertTrue($checker->isValueValidReturnType(2));
+        $this->assertTrue($checker->isValueValidReturnType(true));
+        $this->assertTrue($checker->isValueValidReturnType(false));
         $this->assertFalse($checker->isValueValidReturnType('foo'));
     }
 }

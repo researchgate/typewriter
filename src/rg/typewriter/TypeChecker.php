@@ -50,7 +50,6 @@ class TypeChecker {
         return false;
     }
 
-
     /**
      * @param string $type
      * @param mixed $value

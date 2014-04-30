@@ -67,31 +67,31 @@ class TypeChecker {
             return true;
         }
 
-        switch (strtolower($type)) {
-            case 'array':
-                return is_array($value);
-            case 'int':
-            case 'integer':
-                return is_int($value);
-            case 'float':
-                return is_float($value);
-            case 'bool':
-            case 'boolean':
-                return is_bool($value);
-            case 'string':
-                return is_string($value);
-            case 'object':
-                return is_object($value);
-            case 'null':
-                return is_null($value);
-            case 'mixed':
-                return true;
-            case 'callable':
-            case 'closure':
-                return is_callable($value);
-            case 'void':
-                return is_null($value);
+        $predicates = [
+            'array'     => 'is_array',
+            'int'       => 'is_int',
+            'integer'   => 'is_int',
+            'float'     => 'is_float',
+            'bool'      => 'is_bool',
+            'boolean'   => 'is_bool',
+            'string'    => 'is_string',
+            'object'    => 'is_object',
+            'null'      => 'is_null',
+            'void'      => 'is_null',
+            'callable'  => 'is_callable',
+        ];
+
+        $lowerType = strtolower($type);
+
+        if ('mixed' === $lowerType) {
+            return true;
         }
+
+        if (isset($predicates[$lowerType])) {
+            $predicate = $predicates[$lowerType];
+            return $predicate($value);
+        }
+
         return $value instanceof $type;
     }
 

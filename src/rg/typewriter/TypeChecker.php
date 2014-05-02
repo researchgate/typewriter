@@ -9,15 +9,26 @@ class TypeChecker {
     private $reflection;
 
     /**
+     * @var ClassResolver
+     */
+    private $resolver;
+
+    /**
      * @var string[]
      */
     private $returnTypes;
+
+    /**
+     * @var string[]
+     */
+    private $arguments;
 
     /**
      * @param callable $callable
      */
     public function __construct(callable $callable) {
         $this->reflection = $this->getReflectionReference($callable);
+        $this->resolver = new ClassResolver($this->reflection->getFileName());
     }
 
     /**
@@ -26,6 +37,14 @@ class TypeChecker {
      * @return bool
      */
     public function isValueValidForArgument($argName, $actual) {
+        $arguments = $this->getArgumentTypesFromDocComment();
+        $types = $arguments[$argName];
+        foreach ($types as $type) {
+            if ($this->isOfType($type, $actual)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -97,6 +116,33 @@ class TypeChecker {
     /**
      * @return string[]
      */
+    private function getArgumentTypesFromDocComment() {
+        if ($this->arguments !== null) {
+            return $this->arguments;
+        }
+
+        $matches = [];
+        $found = preg_match_all('/@param\s+(?<type>\S+)\s+\\$(?<argName>\S+)/', $this->reflection->getDocComment(), $matches, PREG_SET_ORDER);
+
+        $arguments = [];
+        if ($found) {
+            foreach ($matches as $match) {
+                $argName = $match['argName'];
+                $type = $match['type'];
+                $arguments[$argName] = $this->explodeMultipleHints($type);
+            }
+        }
+
+        foreach ($arguments as $argName => $types) {
+            $this->arguments[$argName] = $this->resolveTypes($types);
+        }
+
+        return $this->arguments;
+    }
+
+    /**
+     * @return string[]
+     */
     private function getReturnTypesFromDocComment() {
         if ($this->returnTypes !== null) {
             return $this->returnTypes;
@@ -104,20 +150,9 @@ class TypeChecker {
 
         $matches = [];
         $found = preg_match('/@return\s+(\S+)/', $this->reflection->getDocComment(), $matches);
-        $types = $found ? $this->explodeMultipleHints($matches[1]) : array();
+        $types = $found ? $this->explodeMultipleHints($matches[1]) : [];
 
-        $resolver = new ClassResolver($this->reflection->getFileName());
-
-        $this->returnTypes = array_map(function ($type) use ($resolver) {
-            if (substr($type, -2) === '[]') {
-                $type = substr($type, 0, -2);
-                $className = $resolver->resolve($type);
-                return ($className ?: $type) . '[]';
-            }
-
-            $className = $resolver->resolve($type);
-            return $className ?: $type;
-        }, $types);
+        $this->returnTypes = $this->resolveTypes($types);
 
         return $this->returnTypes;
     }
@@ -128,6 +163,22 @@ class TypeChecker {
      */
     private function explodeMultipleHints($hint) {
         return strpos($hint, '|') !== false ? explode('|', $hint) : [$hint];
+    }
+
+    private function resolveTypes($types) {
+        $resolvedTypes = [];
+        foreach ($types as $type) {
+            if (substr($type, -2) === '[]') {
+                $type = substr($type, 0, -2);
+                $className = $this->resolver->resolve($type);
+                $resolvedTypes[] = ($className ?: $type) . '[]';
+                continue;
+            }
+
+            $className = $this->resolver->resolve($type);
+            $resolvedTypes[] = $className ?: $type;
+        }
+        return $resolvedTypes;
     }
 
     /**

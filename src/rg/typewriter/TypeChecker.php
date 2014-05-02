@@ -168,17 +168,20 @@ class TypeChecker {
     private function resolveTypes($types) {
         $resolvedTypes = [];
         foreach ($types as $type) {
-            if (substr($type, -2) === '[]') {
-                $type = substr($type, 0, -2);
-                $className = $this->resolver->resolve($type);
-                $resolvedTypes[] = ($className ?: $type) . '[]';
-                continue;
-            }
-
-            $className = $this->resolver->resolve($type);
-            $resolvedTypes[] = $className ?: $type;
+            $resolvedTypes[] = $this->resolveType($type);
         }
         return $resolvedTypes;
+    }
+
+    private function resolveType($type) {
+        if (substr($type, -2) === '[]') {
+            $type = substr($type, 0, -2);
+            $className = $this->resolver->resolve($type);
+            return ($className ?: $type) . '[]';
+        }
+
+        $className = $this->resolver->resolve($type);
+        return $className ?: $type;
     }
 
     /**
